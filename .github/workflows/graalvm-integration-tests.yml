@@ -1,4 +1,4 @@
-name: GraalVM Native Integration Tests
+name: VirtuallyApp Integration Tests
 
 on:
   workflow_dispatch:
@@ -18,7 +18,7 @@ jobs:
           java-version: '21'
 
       - name: Run Integration Tests
-        run: ./gradlew build quarkusIntTest
+        run: ./gradlew build quarkusIntTest --no-daemon
 
       - name: Build Docker image
         run: docker build -f ./src/main/docker/Dockerfile.jvm -t virtuallyapp:0.0.1 .
