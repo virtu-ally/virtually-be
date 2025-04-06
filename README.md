@@ -65,13 +65,21 @@ This works because the following settings are enabled in `application.properties
 ```
 quarkus.package.jar.enabled=false
 quarkus.native.enabled=true
-quarkus.native.compression.level=5
-quarkus.native.compression.additional-args=-v
 
 # Additional optimizations to reduce binary size
 quarkus.native.add-all-charsets=false
 quarkus.native.enable-http-url-handler=false
 quarkus.native.enable-https-url-handler=false
+```
+
+### Native Executable Compression
+
+**Note for macOS users:** UPX compression is currently broken on macOS and should be ignored entirely. The compression settings are commented out by default in the application.properties file.
+
+**For Linux and Windows users:** If you want to enable compression to reduce the size of your native executable, uncomment these lines in your `application.properties` file:
+```
+quarkus.native.compression.level=5
+quarkus.native.compression.additional-args=-v
 ```
 
 If you don't have GraalVM installed locally, you can run the native executable build in a container:
