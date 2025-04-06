@@ -39,4 +39,4 @@ jobs:
         run: ./gradlew testNative
 
       - name: Build Docker image
-        run: docker build -f ./src/main/docker/Dockerfile.native-micro -t virtuallyapp:0.0.1
+        run: docker build -f ./src/main/docker/Dockerfile.native-micro -t virtuallyapp:0.0.1 .
