@@ -3,6 +3,7 @@ package com.virtuallyapp
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
+import kotlinx.serialization.Serializable
 
 /**
  * Example JPA entity.
@@ -22,6 +23,7 @@ import jakarta.persistence.Id
  *     }
  * }
  */
+@Serializable
 @Entity
 class MyKotlinEntity {
     @get:GeneratedValue

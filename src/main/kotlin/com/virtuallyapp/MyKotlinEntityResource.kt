@@ -6,6 +6,7 @@ import jakarta.ws.rs.*
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.core.Response.Status
+import org.jboss.logging.Logger
 
 /**
  * REST resource for managing MyKotlinEntity instances.
@@ -19,13 +20,26 @@ class MyKotlinEntityResource {
     @Inject
     lateinit var service: MyKotlinEntityService
 
+    private val logger = Logger.getLogger(MyKotlinEntityResource::class.java)
+
     /**
      * GET all entities.
      * @return a list of all entities
      */
     @GET
-    fun getAll(): Uni<List<MyKotlinEntity>> {
+    @Produces(MediaType.APPLICATION_JSON)
+    fun getAll(): Uni<Response> {
+        logger.debug("Getting all entities")
         return service.findAll()
+            .onItem().transform { entities ->
+                logger.debug("Found ${entities.size} entities")
+                // Convert to array which should be easier to serialize
+                Response.ok(entities.toTypedArray()).build()
+            }
+            .onFailure().recoverWithItem { e ->
+                logger.error("Error getting all entities", e)
+                Response.serverError().entity("Error getting all entities: ${e.message}").build()
+            }
     }
 
     /**
@@ -36,13 +50,20 @@ class MyKotlinEntityResource {
     @GET
     @Path("/{id}")
     fun getById(@PathParam("id") id: Long): Uni<Response> {
+        logger.debug("Getting entity with ID: $id")
         return service.findById(id)
             .onItem().transform { entity ->
                 if (entity != null) {
+                    logger.debug("Found entity with ID: $id")
                     Response.ok(entity).build()
                 } else {
+                    logger.debug("Entity with ID: $id not found")
                     Response.status(Status.NOT_FOUND).build()
                 }
+            }
+            .onFailure().recoverWithItem { e ->
+                logger.error("Error getting entity with ID: $id", e)
+                Response.serverError().entity("Error getting entity with ID $id: ${e.message}").build()
             }
     }
 
@@ -53,11 +74,17 @@ class MyKotlinEntityResource {
      */
     @POST
     fun create(entity: MyKotlinEntity): Uni<Response> {
+        logger.debug("Creating new entity: $entity")
         return service.create(entity)
             .onItem().transform { createdEntity ->
+                logger.debug("Created entity with ID: ${createdEntity.id}")
                 Response.status(Status.CREATED)
                     .entity(createdEntity)
                     .build()
+            }
+            .onFailure().recoverWithItem { e ->
+                logger.error("Error creating entity", e)
+                Response.serverError().entity("Error creating entity: ${e.message}").build()
             }
     }
 
@@ -70,15 +97,22 @@ class MyKotlinEntityResource {
     @PUT
     @Path("/{id}")
     fun update(@PathParam("id") id: Long, entity: MyKotlinEntity): Uni<Response> {
+        logger.debug("Updating entity with ID: $id")
         // Ensure the ID in the path matches the entity ID
         entity.id = id
         return service.update(id, entity)
             .onItem().transform { updatedEntity ->
                 if (updatedEntity != null) {
+                    logger.debug("Updated entity with ID: $id")
                     Response.ok(updatedEntity).build()
                 } else {
+                    logger.debug("Entity with ID: $id not found for update")
                     Response.status(Status.NOT_FOUND).build()
                 }
+            }
+            .onFailure().recoverWithItem { e ->
+                logger.error("Error updating entity with ID: $id", e)
+                Response.serverError().entity("Error updating entity with ID $id: ${e.message}").build()
             }
     }
 
@@ -91,13 +125,20 @@ class MyKotlinEntityResource {
     @PATCH
     @Path("/{id}")
     fun partialUpdate(@PathParam("id") id: Long, entity: MyKotlinEntity): Uni<Response> {
+        logger.debug("Partially updating entity with ID: $id")
         return service.partialUpdate(id, entity)
             .onItem().transform { updatedEntity ->
                 if (updatedEntity != null) {
+                    logger.debug("Partially updated entity with ID: $id")
                     Response.ok(updatedEntity).build()
                 } else {
+                    logger.debug("Entity with ID: $id not found for partial update")
                     Response.status(Status.NOT_FOUND).build()
                 }
+            }
+            .onFailure().recoverWithItem { e ->
+                logger.error("Error partially updating entity with ID: $id", e)
+                Response.serverError().entity("Error partially updating entity with ID $id: ${e.message}").build()
             }
     }
 
@@ -109,13 +150,20 @@ class MyKotlinEntityResource {
     @DELETE
     @Path("/{id}")
     fun delete(@PathParam("id") id: Long): Uni<Response> {
+        logger.debug("Deleting entity with ID: $id")
         return service.deleteById(id)
             .onItem().transform { deleted ->
                 if (deleted) {
+                    logger.debug("Deleted entity with ID: $id")
                     Response.noContent().build()
                 } else {
+                    logger.debug("Entity with ID: $id not found for deletion")
                     Response.status(Status.NOT_FOUND).build()
                 }
+            }
+            .onFailure().recoverWithItem { e ->
+                logger.error("Error deleting entity with ID: $id", e)
+                Response.serverError().entity("Error deleting entity with ID $id: ${e.message}").build()
             }
     }
 }

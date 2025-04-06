@@ -4,6 +4,7 @@ import io.smallrye.mutiny.Uni
 import io.quarkus.hibernate.reactive.panache.common.WithTransaction
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
+import org.jboss.logging.Logger
 
 /**
  * Service for managing MyKotlinEntity instances.
@@ -15,12 +16,15 @@ class MyKotlinEntityService {
     @Inject
     lateinit var repository: MyKotlinEntityRepository
 
+    private val logger = Logger.getLogger(MyKotlinEntityService::class.java)
+
     /**
      * Find all entities.
      * @return a Uni emitting a list of all entities
      */
     @WithTransaction
     fun findAll(): Uni<List<MyKotlinEntity>> {
+        logger.debug("Finding all entities")
         return repository.findAll().list()
     }
 
@@ -31,6 +35,7 @@ class MyKotlinEntityService {
      */
     @WithTransaction
     fun findById(id: Long): Uni<MyKotlinEntity?> {
+        logger.debug("Finding entity with ID: $id")
         return repository.findById(id)
     }
 
@@ -41,6 +46,7 @@ class MyKotlinEntityService {
      */
     @WithTransaction
     fun create(entity: MyKotlinEntity): Uni<MyKotlinEntity> {
+        logger.debug("Creating new entity: $entity")
         return repository.persist(entity)
     }
 
@@ -52,8 +58,10 @@ class MyKotlinEntityService {
      */
     @WithTransaction
     fun update(id: Long, entity: MyKotlinEntity): Uni<MyKotlinEntity?> {
+        logger.debug("Updating entity with ID: $id")
         return repository.findById(id)
             .onItem().ifNotNull().transformToUni { existingEntity ->
+                logger.debug("Found entity with ID: $id, updating fields")
                 existingEntity.field = entity.field
                 repository.persist(existingEntity)
             }
@@ -67,8 +75,10 @@ class MyKotlinEntityService {
      */
     @WithTransaction
     fun partialUpdate(id: Long, entity: MyKotlinEntity): Uni<MyKotlinEntity?> {
+        logger.debug("Partially updating entity with ID: $id")
         return repository.findById(id)
             .onItem().ifNotNull().transformToUni { existingEntity ->
+                logger.debug("Found entity with ID: $id, partially updating fields")
                 entity.field?.let { existingEntity.field = it }
                 repository.persist(existingEntity)
             }
@@ -81,6 +91,7 @@ class MyKotlinEntityService {
      */
     @WithTransaction
     fun deleteById(id: Long): Uni<Boolean> {
+        logger.debug("Deleting entity with ID: $id")
         return repository.deleteById(id)
     }
 }
