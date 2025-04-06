@@ -7,6 +7,8 @@ import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.core.Response.Status
 import org.jboss.logging.Logger
+import org.jboss.resteasy.reactive.RestResponse
+import org.jboss.resteasy.reactive.RestResponse.ResponseBuilder
 
 /**
  * REST resource for managing MyKotlinEntity instances.
@@ -28,17 +30,17 @@ class MyKotlinEntityResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    fun getAll(): Uni<Response> {
+    fun getAll(): Uni<RestResponse<List<MyKotlinEntity>>> {
         logger.debug("Getting all entities")
         return service.findAll()
             .onItem().transform { entities ->
                 logger.debug("Found ${entities.size} entities")
                 // Convert to array which should be easier to serialize
-                Response.ok(entities.toTypedArray()).build()
+                ResponseBuilder.ok(entities).build()
             }
             .onFailure().recoverWithItem { e ->
                 logger.error("Error getting all entities", e)
-                Response.serverError().entity("Error getting all entities: ${e.message}").build()
+                ResponseBuilder.serverError<List<MyKotlinEntity>>().build()
             }
     }
 
