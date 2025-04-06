@@ -35,18 +35,49 @@ If you want to build an _über-jar_, execute the following command:
 
 The application, packaged as an _über-jar_, is now runnable using `java -jar build/*-runner.jar`.
 
-## Creating a native executable
+## Native Build Configuration
 
-You can create a native executable using:
+This project is configured to build using native by default. The native build process creates a standalone executable that doesn't require a JVM to run, resulting in faster startup times and lower memory usage.
+
+### Native Build Requirements
+
+To build this project, you'll need the following tools installed:
+
+1. **GraalVM** - A high-performance JDK distribution with native image capabilities
+   - Installation guide: <https://www.graalvm.org/latest/docs/getting-started/>
+   - For macOS: `brew install --cask graalvm/tap/graalvm-jdk-21`
+   - For Linux: Download from <https://github.com/graalvm/graalvm-ce-builds/releases>
+
+2. **UPX** - Ultimate Packer for eXecutables, used to compress the native executable
+   - Installation guide: <https://upx.github.io/>
+   - For macOS: `brew install upx`
+   - For Linux: `apt-get install upx` or equivalent for your distribution
+
+### Building the Native Executable
+
+The project is configured to build a native executable by default:
 
 ```shell script
-./gradlew build -Dquarkus.native.enabled=true
+./gradlew build
 ```
 
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
+This works because the following settings are enabled in `application.properties`:
+```
+quarkus.package.jar.enabled=false
+quarkus.native.enabled=true
+quarkus.native.compression.level=5
+quarkus.native.compression.additional-args=-v
+
+# Additional optimizations to reduce binary size
+quarkus.native.add-all-charsets=false
+quarkus.native.enable-http-url-handler=false
+quarkus.native.enable-https-url-handler=false
+```
+
+If you don't have GraalVM installed locally, you can run the native executable build in a container:
 
 ```shell script
-./gradlew build -Dquarkus.native.enabled=true -Dquarkus.native.container-build=true
+./gradlew build -Dquarkus.native.container-build=true
 ```
 
 You can then execute your native executable with: `./build/virtually-1.0-SNAPSHOT-runner`
