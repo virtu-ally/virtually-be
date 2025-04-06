@@ -1,10 +1,6 @@
 name: GraalVM Native Integration Tests
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
   workflow_dispatch:
 
 jobs:
