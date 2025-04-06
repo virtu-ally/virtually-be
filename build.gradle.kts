@@ -8,9 +8,6 @@ plugins {
 repositories {
     mavenCentral()
     mavenLocal()
-    maven {
-        url = uri("https://packages.confluent.io/maven/")
-    }
 }
 
 val quarkusPlatformGroupId: String by project
@@ -18,8 +15,9 @@ val quarkusPlatformArtifactId: String by project
 val quarkusPlatformVersion: String by project
 
 dependencies {
+    implementation("io.quarkus:quarkus-messaging-kafka")
+    implementation("io.quarkus:quarkus-apicurio-registry-json-schema")
     implementation(enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}"))
-    implementation("io.confluent:kafka-avro-serializer:7.5.8") // newer versions are borked for the time being
     implementation("org.bouncycastle:bctls-jdk18on:1.80")
     implementation("org.bouncycastle:bcprov-jdk18on:1.80")
     implementation("io.quarkus:quarkus-rest")
@@ -33,7 +31,6 @@ dependencies {
     implementation("io.quarkus:quarkus-rest-client-jackson")
     implementation("io.quarkus:quarkus-rest-jsonb")
     implementation("io.quarkus:quarkus-hibernate-validator")
-    implementation("io.quarkus:quarkus-confluent-registry-avro")
     implementation("io.quarkus:quarkus-rest-jackson")
     implementation("io.quarkus:quarkus-kotlin")
     implementation("io.quarkus:quarkus-jackson")
